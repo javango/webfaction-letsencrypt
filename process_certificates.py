@@ -10,9 +10,110 @@ import xmlrpclib
 
 from user_config import *
 
+LETSENCRYPT_APP_NAME = 'letsencrypt'
+
 HOME_PATH='/home/{user}/'.format(user=USER)
 ACME_PATH='/home/{user}/.acme.sh'.format(user=USER)
 
+# ----------------------------------------------------------------------- letsencrypt application
+def check_letsencrypt_application():
+    """ Returns true if the letsencrypt application exists """
+    if DEBUG > 0:
+        print 'checking letsencrypt app'
+
+    server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
+    ses, acc = server.login(USER, PASS, WEB, 2)
+
+    app_list = server.list_apps(ses)
+
+    for app in app_list:
+        if app['name'] == LETSENCRYPT_APP_NAME:
+            if DEBUG > 1:
+                print "Application Exists"
+            return True
+
+    if DEBUG > 1:
+        print "Application Does Not Exist"
+
+    return False
+
+
+def create_letsencrypt_application():
+    """ If the lets encrypt application does not exist create it """
+    # connect to Webfaction API
+    if DEBUG > 1:
+        print "Creating Let's Encrypt Application"
+        
+    server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
+    ses, acc = server.login(USER, PASS, WEB, 2)
+
+    well_known_path = '{home}/webfaction-letsencrypt/.well-known'.format(home=HOME_PATH)
+    server.create_app(ses, LETSENCRYPT_APP_NAME, 'symlink_static_only', False, well_known_path, False)
+
+    if DEBUG > 1:
+        print "Application Created"
+
+    return True
+
+# ----------------------------------------------------------------------- wellknown url
+def check_wellknown(site_name):
+    """ Returns true/false is wellknown url exists for the give site,  additionally if False it will return the site from the api
+        alwasy returns a tuple,  True/None if wellknown exists,  False/site if does not """
+    if DEBUG > 0:
+        print 'checking wellknown {}'.format(site_name)
+
+    server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
+    ses, acc = server.login(USER, PASS, WEB, 2)
+
+    site_list = server.list_websites(ses)
+
+    for site in site_list:
+        if DEBUG > 3:
+            print 'checking site {site} for match to {site_name}'.format(site=site['name'], site_name=site_name)
+
+        if site['name'] == site_name:
+            for app, url in site['website_apps']:
+                if DEBUG > 3:
+                    print "checking site {app} for {letsencrypt}".format(app=app, letsencrypt=LETSENCRYPT_APP_NAME)
+                if app == LETSENCRYPT_APP_NAME:
+                    if DEBUG > 1:
+                        print "Wellknown Exists"
+                    return True, None
+
+            if DEBUG > 1:
+                print "Wellknown Does Not Exist"
+            return False, site
+
+    sys.exit("Weisite {0} Does Not Exist".format(site_name))
+    
+
+def create_wellknown(site_name, site_definition):
+    """ If the lets encrypt application does not exist create it """
+    website_apps = site_definition['website_apps']
+    website_apps.append([LETSENCRYPT_APP_NAME, '/.well-known'])
+
+    # connect to Webfaction API
+    if DEBUG > 1:
+        print "Adding letsencryt url"
+
+    server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
+    ses, acc = server.login(USER, PASS, WEB, 2)
+
+    server.update_website(ses, \
+          site_definition['name'], \
+          site_definition['ip'], \
+          site_definition['https'], \
+          site_definition['subdomains'], \
+          site_definition['certificate'], \
+          *website_apps)
+
+    if DEBUG > 1:
+        print "Url Created"
+
+    return True
+
+ 
+# ----------------------------------------------------------------------- letsencrypt certificate
 def create_letsencrypt_certificate(cert_name, cert_domain, other_domains):
     """ Creates the let's encrypt certificate,  this is run once per certificate """
     if DEBUG > 0:
@@ -103,7 +204,23 @@ def update_webfaction_certificate(cert_name, cert_domain, other_domains):
             server.create_certificate(ses, cert_name, domain_certif, pv_key, intermediate_cert)
 
 
+def setup_webfaction():
+    
+    if not check_letsencrypt_application():
+        if not create_letsencrypt_application():
+            sys.exit("Not able to create Let's Encrypt Application via WebFaction API")
+
+    for cert_name, cert_domain, other_domains in CERTS:
+        exists, site = check_wellknown(cert_name)
+        if not exists:
+            if not create_wellknown(cert_name, site):
+                sys.exit("Not able to create wellknown via WebFaction API '{}'".format(cert_name))
+
+
 if __name__ == '__main__':
+    # verify the webfaction assets exist
+    setup_webfaction()
+
     # Run the command advised by acme.sh script in order to renew the certificates (each certificate lasts 90 days, thus
     # it is permitted by LetsEncrypt to renew certificates every 60 days - 30 days before expiration)
     # So this script will run as a cron job in order for the certs to be renewed.
