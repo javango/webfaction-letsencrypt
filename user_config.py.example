@@ -1,0 +1,15 @@
+# copy as user_config.py
+# Sample configuration,  CERTS tuple must have an array of aliases even if blank
+
+USER = 'username' # Webfaction login name
+PASS = 'password' # Webfaction password for API (same as control panel)
+WEB = 'WebXXX'    # Webfaction server make sure to use a capital 'W' (ie Web123)
+
+CERTS = [
+   #('NAME',      'Main URL',    [ array of other domain names])
+    ('site_name', 'my-site.com', ['www.my-site.com']),
+    ('other_site', 'other-site.com', []),
+]
+
+DEBUG=0
+
