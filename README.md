@@ -3,25 +3,23 @@ Fully Automated Let's Encrypt integration for WebFaction
 
 Work In Progress for a fully automated solution to get Let's Encrypt setup for Web Faction.
 
+THIS SCRIPT WILL CHANGE YOUR WEBSITES AND COULD RENDER THEM UN-USABLE,  YOU HAVE BEEN WARNED
+
 This scrupt will create a new application that is shared by all websites,  this application will be mounted at /.well-known for each website,  the script will then use acme.sh to update the certificate
 
 # Status
 
 This script is not ready for use,  it is close but has not been tested
 
+# How To
+
+ * Install acme.sh, from a terminal "curl https://get.acme.sh | sh"
+ * Clone this repo, from a terminal "git clone https://github.com/javango/webfaction-letsencrypt.git"
+ * Create user_config.py, copy user_config.py.example to user_config.py edit the new file and update your user, password, web and certificate list
+ * Create 'ssl_redirect' app, TODO
+ * Create redirect website, TODO
+ * execute the script 'process_certificates.py'
+
 # TODO
 
-Currently the script will create the letsencrypt webfaction application,  associate this appliation with the proper URLs and create the certificates,  all that exists for basic functionality is to update the website to use the certififcate.
-
-# HOWTO
-
-Copy the user_config.py.example and update with your user/password
-
-THIS SCRIPT WILL CHANGE YOUR WEBSITES AND COULD RENDER THEM UN-USABLE,  YOU HAVE BEEN WARNED
-
-THIS SCRIPT WILL CHANGE YOUR WEBSITES AND COULD RENDER THEM UN-USABLE,  YOU HAVE BEEN WARNED
-
-THIS SCRIPT WILL CHANGE YOUR WEBSITES AND COULD RENDER THEM UN-USABLE,  YOU HAVE BEEN WARNED
-
-THIS SCRIPT WILL CHANGE YOUR WEBSITES AND COULD RENDER THEM UN-USABLE,  YOU HAVE BEEN WARNED
-
+ * Automate the ssl_redirect app and website
