@@ -11,5 +11,7 @@ CERTS = [
     ('other_site', 'other-site.com', []),
 ]
 
+# ---------------------------------
 DEBUG=0
+LETSENCRYPT_APP_NAME = 'letsencrypt'
 

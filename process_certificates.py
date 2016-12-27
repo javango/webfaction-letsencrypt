@@ -8,9 +8,10 @@ import subprocess
 
 import xmlrpclib
 
-from user_config import *
-
+DEBUG=0
 LETSENCRYPT_APP_NAME = 'letsencrypt'
+
+from user_config import *
 
 HOME_PATH='/home/{user}/'.format(user=USER)
 ACME_PATH='/home/{user}/.acme.sh'.format(user=USER)
@@ -125,7 +126,7 @@ def create_letsencrypt_certificate(cert_name, cert_domain, other_domains):
 
     test = '' # ' --test'
 
-    command = '{acme_path}/acme.sh --issue{test} {domains} -w {home}letsencrypt/'.format(home=HOME_PATH, acme_path=ACME_PATH, test=test, domains=domains)
+    command = '{acme_path}/acme.sh --issue{test} {domains} -w {home}webfaction-letsencrypt/'.format(home=HOME_PATH, acme_path=ACME_PATH, test=test, domains=domains)
     proc = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = proc.communicate()
 
