@@ -10,17 +10,15 @@ import xmlrpclib
 
 DEBUG=0
 LETSENCRYPT_APP_NAME = 'letsencrypt'
+APP_PATH = os.path.dirname(os.path.abspath(__file__))
 
 from user_config import *
-
-HOME_PATH='/home/{user}/'.format(user=USER)
-ACME_PATH='/home/{user}/.acme.sh'.format(user=USER)
 
 # ----------------------------------------------------------------------- letsencrypt application
 def check_letsencrypt_application():
     """ Returns true if the letsencrypt application exists """
     if DEBUG > 0:
-        print 'checking letsencrypt app'
+        print "Checking letsencrypt app '{app_name}'".format(app_name=LETSENCRYPT_APP_NAME)
 
     server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
     ses, acc = server.login(USER, PASS, WEB, 2)
@@ -29,11 +27,11 @@ def check_letsencrypt_application():
 
     for app in app_list:
         if app['name'] == LETSENCRYPT_APP_NAME:
-            if DEBUG > 1:
+            if DEBUG > 0:
                 print "Application Exists"
             return True
 
-    if DEBUG > 1:
+    if DEBUG > 0:
         print "Application Does Not Exist"
 
     return False
@@ -42,24 +40,26 @@ def check_letsencrypt_application():
 def create_letsencrypt_application():
     """ If the lets encrypt application does not exist create it """
     # connect to Webfaction API
-    if DEBUG > 1:
-        print "Creating Let's Encrypt Application"
+    if DEBUG > 0:
+        print "Creating Let's Encrypt Application '{app_name}'".format(app_name=LETSENCRYPT_APP_NAME)
         
     server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
     ses, acc = server.login(USER, PASS, WEB, 2)
 
-    well_known_path = '{home}/webfaction-letsencrypt/.well-known'.format(home=HOME_PATH)
+    well_known_path = '{app_path}/.well-known'.format(app_path=APP_PATH)
     server.create_app(ses, LETSENCRYPT_APP_NAME, 'symlink_static_only', False, well_known_path, False)
 
-    if DEBUG > 1:
+    if DEBUG > 0:
         print "Application Created"
 
     return True
 
 # ----------------------------------------------------------------------- wellknown url
 def check_wellknown(site_name):
-    """ Returns true/false is wellknown url exists for the give site,  additionally if False it will return the site from the api
-        alwasy returns a tuple,  True/None if wellknown exists,  False/site if does not """
+    """ Returns a tuple of true/false and the site definition from the webfaction aip
+        True if wellknown url exists for the give site False otherwise,
+        Will sys.exit if the site does not exist
+    """
     if DEBUG > 0:
         print 'checking wellknown {}'.format(site_name)
 
@@ -77,15 +77,15 @@ def check_wellknown(site_name):
                 if DEBUG > 3:
                     print "checking site {app} for {letsencrypt}".format(app=app, letsencrypt=LETSENCRYPT_APP_NAME)
                 if app == LETSENCRYPT_APP_NAME:
-                    if DEBUG > 1:
+                    if DEBUG > 0:
                         print "Wellknown Exists"
-                    return True, None
+                    return True, site
 
-            if DEBUG > 1:
+            if DEBUG > 0:
                 print "Wellknown Does Not Exist"
             return False, site
 
-    sys.exit("Weisite {0} Does Not Exist".format(site_name))
+    sys.exit("Website {0} Does Not Exist".format(site_name))
     
 
 def create_wellknown(site_name, site_definition):

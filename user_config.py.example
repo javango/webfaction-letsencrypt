@@ -13,5 +13,13 @@ CERTS = [
 
 # ---------------------------------
 DEBUG=0
+
+# The name of the webfaction app that hold the lets encrypt files
 LETSENCRYPT_APP_NAME = 'letsencrypt'
+
+# Use's home path
+HOME_PATH='/home/{user}/'.format(user=USER)
+
+# acme.sh path (to the folder)
+ACME_PATH='/home/{user}/.acme.sh'.format(user=USER)
 
