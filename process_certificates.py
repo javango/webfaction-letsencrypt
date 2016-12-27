@@ -150,7 +150,7 @@ def create_letsencrypt_certificate(cert_name, cert_domain, other_domains):
 
     test = '' # ' --test'
 
-    command = '{acme_path}/acme.sh --issue{test} {domains} -w {home}webfaction-letsencrypt/'.format(home=HOME_PATH, acme_path=ACME_PATH, test=test, domains=domains)
+    command = '{acme_path}/acme.sh --issue{test} {domains} -w {app_path}'.format(app_path=APP_PATH, acme_path=ACME_PATH, test=test, domains=domains)
     proc = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = proc.communicate()
 
