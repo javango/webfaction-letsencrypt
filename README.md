@@ -1,4 +1,6 @@
 # webfaction-letsencrypt
+This script is originally from nik (https://community.webfaction.com/users/7628/nik) posted at https://community.webfaction.com/questions/19988/using-letsencrypt/20510 attempting to automate a couple of steps.
+
 Fully Automated Let's Encrypt integration for WebFaction
 
 Work In Progress for a fully automated solution to get Let's Encrypt setup for Web Faction.
