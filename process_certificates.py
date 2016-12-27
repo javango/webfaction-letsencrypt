@@ -224,13 +224,21 @@ def update_webfaction_certificate(cert_name, cert_domain, other_domains):
 
         # Update the renewed certificate
         try:
+            if DEBUG > 0:
+                print "Trying to update existing certificate"
             server.update_certificate(ses, cert_name, domain_certif, pv_key, intermediate_cert)
         except:
+            if DEBUG > 0:
+                print "Update failed,  trying to create new certificate"
             # certificate does not exist,  try to create
             server.create_certificate(ses, cert_name, domain_certif, pv_key, intermediate_cert)
+            if DEBUG > 0:
+                print "Create succeeded,  adding certificate to website"
             # re-use check well-known to get the site definition
             exists, site = check_wellknown(cert_name)
             add_certificate_to_website(cert_name, site)
+            if DEBUG > 0:
+                print "Done"
 
 
 def setup_webfaction():
