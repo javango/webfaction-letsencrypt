@@ -114,6 +114,30 @@ def create_wellknown(site_name, site_definition):
     return True
 
  
+def add_certificate_to_website(site_name, site_def):
+    """ Make sure the site is https and the certificate is enabled """
+
+    # connect to Webfaction API
+    if DEBUG > 1:
+        print "Adding certificate to website"
+
+    server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
+    ses, acc = server.login(USER, PASS, WEB, 2)
+
+    server.update_website(ses, \
+          site_definition['name'], \
+          site_definition['ip'], \
+          True, \  # HTTPS
+          site_definition['subdomains'], \
+          site_name, \
+          *site_definition['website_apps'])
+
+    if DEBUG > 1:
+        print "certificate added"
+
+    return True
+
+
 # ----------------------------------------------------------------------- letsencrypt certificate
 def create_letsencrypt_certificate(cert_name, cert_domain, other_domains):
     """ Creates the let's encrypt certificate,  this is run once per certificate """
@@ -202,7 +226,11 @@ def update_webfaction_certificate(cert_name, cert_domain, other_domains):
         try:
             server.update_certificate(ses, cert_name, domain_certif, pv_key, intermediate_cert)
         except:
+            # certificate does not exist,  try to create
             server.create_certificate(ses, cert_name, domain_certif, pv_key, intermediate_cert)
+            # re-use check well-known to get the site definition
+            exists, site = check_wellknown(cert_name)
+            add_certificate_to_website(cert_name, site)
 
 
 def setup_webfaction():
