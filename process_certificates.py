@@ -114,7 +114,7 @@ def create_wellknown(site_name, site_definition):
     return True
 
  
-def add_certificate_to_website(site_name, site_def):
+def add_certificate_to_website(site_name, site_definition):
     """ Make sure the site is https and the certificate is enabled """
 
     # connect to Webfaction API
