@@ -128,7 +128,7 @@ def add_certificate_to_website(site_name, site_definition):
     server.update_website(ses, \
           site_definition['name'], \
           site_definition['ip'], \
-          True, \
+          site_definition['https'], \
           site_definition['subdomains'], \
           site_name, \
           *site_definition['website_apps'])
