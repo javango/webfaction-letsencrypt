@@ -11,6 +11,7 @@ import xmlrpclib
 DEBUG=0
 LETSENCRYPT_APP_NAME = 'letsencrypt'
 APP_PATH = os.path.dirname(os.path.abspath(__file__))
+FORCE_WEBFACTION = False
 
 from user_config import *
 
@@ -289,7 +290,7 @@ if __name__ == '__main__':
 
     update_webfaction = update_webfaction or 'Cert success.' in out
 
-    if update_webfaction:
+    if FORCE_WEBFACTION or update_webfaction:
         if DEBUG > 0:
             print 'Need to update webfaction'
 

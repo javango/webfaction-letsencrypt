@@ -23,3 +23,5 @@ HOME_PATH='/home/{user}/'.format(user=USER)
 # acme.sh path (to the folder)
 ACME_PATH='/home/{user}/.acme.sh'.format(user=USER)
 
+# Always update the certificates on webfaction
+FORCE_WEBFACTION = False
