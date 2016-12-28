@@ -1,3 +1,4 @@
 user_config.py
+*_config.py
 *.pyc
 .well-known
