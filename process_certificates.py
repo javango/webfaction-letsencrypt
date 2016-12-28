@@ -10,16 +10,16 @@ import xmlrpclib
 
 DEBUG=0
 LETSENCRYPT_APP_NAME = 'letsencrypt'
+SSLREDIRECT_APP_NAME = 'ssl_redirect'
 APP_PATH = os.path.dirname(os.path.abspath(__file__))
 FORCE_WEBFACTION = False
 
 from user_config import *
 
-# ----------------------------------------------------------------------- letsencrypt application
-def check_letsencrypt_application():
-    """ Returns true if the letsencrypt application exists """
+# ----------------------------------------------------------------------- utility function
+def check_webfaction_app(app_name):
     if DEBUG > 0:
-        print "Checking letsencrypt app '{app_name}'".format(app_name=LETSENCRYPT_APP_NAME)
+        print "Checking letsencrypt app '{app_name}'".format(app_name=app_name)
 
     server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
     ses, acc = server.login(USER, PASS, WEB, 2)
@@ -27,7 +27,9 @@ def check_letsencrypt_application():
     app_list = server.list_apps(ses)
 
     for app in app_list:
-        if app['name'] == LETSENCRYPT_APP_NAME:
+        if DEBUG > 4:
+            print "Checking app '{app}' against '{app_name}'".format(app=app['name'], app_name=app_name)
+        if app['name'] == app_name:
             if DEBUG > 0:
                 print "....Application Exists"
             return True
@@ -36,6 +38,49 @@ def check_letsencrypt_application():
         print "....Application Does Not Exist"
 
     return False
+
+
+# ----------------------------------------------------------------------- redirect application
+# This section handles creation of the ssl_redirect application,  this application is assigned
+# to ALL http websites
+def check_sslredirect_application():
+    return check_webfaction_app(app_name=SSLREDIRECT_APP_NAME)
+
+
+def create_htaccess(file_name):
+    file = open(file_name, "w")
+    file.write("RewriteEngine on\n")
+    file.write("RewriteRule https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]\n")
+    file.close()
+
+
+def create_sslredirect_application():
+    """ If the ssl redirect application does not exist create it """
+    # connect to Webfaction API
+    if DEBUG > 0:
+        print "Creating SSL Redirect Application '{app_name}'".format(app_name=SSLREDIRECT_APP_NAME)
+
+    server = xmlrpclib.ServerProxy('https://api.webfaction.com/')
+    ses, acc = server.login(USER, PASS, WEB, 2)
+
+    if DEBUG > 2:
+        print "Calling WebFaction API", SSLREDIRECT_APP_NAME, 'static_php70', False, '', False
+    server.create_app(ses, SSLREDIRECT_APP_NAME, 'static_php70', False, '', False)
+
+    if DEBUG > 0:
+        print "Application Created"
+
+    # create the .htaccess file
+    if DEBUG > 0:
+        print "Creating htaccess file"
+    htaccess_path = os.path.join(HOME_PATH,'webapps',SSLREDIRECT_APP_NAME, '.htaccess')
+    create_htaccess_(htaccess_path)
+    return True
+
+
+# ----------------------------------------------------------------------- letsencrypt application
+def check_letsencrypt_application():
+    return check_webfaction_app(app_name=LETSENCRYPT_APP_NAME)
 
 
 def create_letsencrypt_application():
@@ -48,6 +93,8 @@ def create_letsencrypt_application():
     ses, acc = server.login(USER, PASS, WEB, 2)
 
     well_known_path = '{app_path}/.well-known'.format(app_path=APP_PATH)
+    if DEBUG > 2:
+        print "Calling WebFaction API", LETSENCRYPT_APP_NAME, 'symlink_static_only', False, well_known_path, False
     server.create_app(ses, LETSENCRYPT_APP_NAME, 'symlink_static_only', False, well_known_path, False)
 
     if DEBUG > 0:
@@ -243,6 +290,9 @@ def update_webfaction_certificate(cert_name, cert_domain, other_domains):
 
 
 def setup_webfaction():
+    if not check_sslredirect_application():
+        create_sslredirect_application()
+
     # Make sure the letsencrypt application exists
     if not check_letsencrypt_application():
         if not create_letsencrypt_application():
