@@ -29,11 +29,11 @@ def check_letsencrypt_application():
     for app in app_list:
         if app['name'] == LETSENCRYPT_APP_NAME:
             if DEBUG > 0:
-                print "Application Exists"
+                print "....Application Exists"
             return True
 
     if DEBUG > 0:
-        print "Application Does Not Exist"
+        print "....Application Does Not Exist"
 
     return False
 
@@ -79,14 +79,14 @@ def check_wellknown(site_name):
                     print "checking site {app} for {letsencrypt}".format(app=app, letsencrypt=LETSENCRYPT_APP_NAME)
                 if app == LETSENCRYPT_APP_NAME:
                     if DEBUG > 0:
-                        print "Wellknown Exists"
+                        print "....Wellknown Exists"
                     return True, site
 
             if DEBUG > 0:
-                print "Wellknown Does Not Exist"
+                print "....Wellknown Does Not Exist"
             return False, site
 
-    sys.exit("Website {0} Does Not Exist".format(site_name))
+    sys.exit("FATAL: Website {0} Does Not Exist".format(site_name))
     
 
 def create_wellknown(site_name, site_definition):
@@ -243,11 +243,12 @@ def update_webfaction_certificate(cert_name, cert_domain, other_domains):
 
 
 def setup_webfaction():
-    
+    # Make sure the letsencrypt application exists
     if not check_letsencrypt_application():
         if not create_letsencrypt_application():
             sys.exit("Not able to create Let's Encrypt Application via WebFaction API")
 
+    # for each site make sure the letsencrypt application is mounted at '/.well-known'
     for cert_name, cert_domain, other_domains in CERTS:
         exists, site = check_wellknown(cert_name)
         if not exists:
@@ -255,10 +256,7 @@ def setup_webfaction():
                 sys.exit("Not able to create wellknown via WebFaction API '{}'".format(cert_name))
 
 
-if __name__ == '__main__':
-    # verify the webfaction assets exist
-    setup_webfaction()
-
+def update_certificates():
     # Run the command advised by acme.sh script in order to renew the certificates (each certificate lasts 90 days, thus
     # it is permitted by LetsEncrypt to renew certificates every 60 days - 30 days before expiration)
     # So this script will run as a cron job in order for the certs to be renewed.
@@ -301,3 +299,12 @@ if __name__ == '__main__':
         if DEBUG > 0:
             print 'did NOT need to update webfaction'
 
+if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == 'init':
+        if DEBUG > 0:
+            print "Updating WebFaction configuration"
+        
+        # verify the webfaction assets exist
+        setup_webfaction()
+    else:
+        update_certificates

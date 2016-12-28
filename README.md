@@ -20,7 +20,8 @@ This script is not ready for use,  it is close but has not been tested
  * Create user_config.py, copy user_config.py.example to user_config.py edit the new file and update your user, password, web and certificate list
  * Create 'ssl_redirect' app, TODO
  * Create redirect website, TODO
- * execute the script 'process_certificates.py'
+ * Create the letssncrypt application and map it to /.well-known for each website 'python process_certificates.py init'
+ * execute the script 'python process_certificates.py'
 
 # TODO
 
