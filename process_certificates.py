@@ -74,7 +74,7 @@ def create_sslredirect_application():
     if DEBUG > 0:
         print "Creating htaccess file"
     htaccess_path = os.path.join(HOME_PATH,'webapps',SSLREDIRECT_APP_NAME, '.htaccess')
-    create_htaccess_(htaccess_path)
+    create_htaccess(htaccess_path)
     return True
 
 
