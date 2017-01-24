@@ -21,8 +21,10 @@ This script is not ready for use,  it is close but has not been tested
  * Create 'ssl_redirect' app, TODO
  * Create redirect website, TODO
  * Create the letssncrypt application and map it to /.well-known for each website 'python process_certificates.py init'
+ * execute the script 'python process_certificates.py init' to create the well-known application and add to each website
  * execute the script 'python process_certificates.py'
 
 # TODO
 
- * Automate the ssl_redirect app and website
+ * Automate the ssl_redirect app and website (This is partially done)
+ * Force application / website names to lower case

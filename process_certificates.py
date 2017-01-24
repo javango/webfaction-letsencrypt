@@ -357,4 +357,4 @@ if __name__ == '__main__':
         # verify the webfaction assets exist
         setup_webfaction()
     else:
-        update_certificates
+        update_certificates()
