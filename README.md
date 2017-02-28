@@ -15,14 +15,13 @@ This script is not ready for use,  it is close but has not been tested
 
 # How To
 
+ * Create the website(s) you wish to enable ssl for,  this script expects those sites to exists as https sites.
+ * TODO Need to add notes on how to setup the redirect from the http version to the https version.
  * Install acme.sh, from a terminal "curl https://get.acme.sh | sh"
  * Clone this repo, from a terminal "git clone https://github.com/javango/webfaction-letsencrypt.git"
  * Create user_config.py, copy user_config.py.example to user_config.py edit the new file and update your user, password, web and certificate list
- * Create 'ssl_redirect' app, TODO
- * Create redirect website, TODO
- * Create the letssncrypt application and map it to /.well-known for each website 'python process_certificates.py init'
- * execute the script 'python process_certificates.py init' to create the well-known application and add to each website
- * execute the script 'python process_certificates.py'
+ * execute the script 'python2.7 process_certificates.py init' to create the well-known application and add to each website
+ * execute the script 'python2.7 process_certificates.py'
 
 # TODO
 
